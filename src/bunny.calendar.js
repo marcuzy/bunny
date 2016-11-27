@@ -116,7 +116,7 @@ export var CalendarMarkup = {
         }
     },
 
-    createTableBody: function(year, month_index, current_day = null) {
+    createTableBody: function(year, month_index, current_day = null, before_td_append = null) {
 
         var matrix = CalendarDate.getMonthMatrix(year, month_index);
 
@@ -146,6 +146,11 @@ export var CalendarMarkup = {
                         current_date_td = td;
                     }
                 }
+
+                if (before_td_append !== null) {
+                    before_td_append(td, year, month_index, matrix[j][k]);
+                }
+
                 row.appendChild(td);
             }
         }
@@ -386,7 +391,7 @@ export var Calendar = {
 
     _calendars: {},
 
-    create: function(id = 'datepicker', min_year = 1950, max_year = 2050, year = null, month_index = null, day = null) {
+    create: function(id = 'datepicker', min_year = 1950, max_year = 2050, year = null, month_index = null, day = null, before_td_append = null) {
 
         var current_date = CalendarDate.getCurrentDate();
 
@@ -429,7 +434,7 @@ export var Calendar = {
         var table_head = CalendarMarkup.createTableHead();
         CalendarDecorator.decorateTableHead(table_head.thead, table_head.row, table_head.thCollection);
 
-        var table_body = CalendarMarkup.createTableBody(year, month_index, day);
+        var table_body = CalendarMarkup.createTableBody(year, month_index, day, before_td_append);
         CalendarDecorator.decorateTableBody(
             table_body.tbody,
             table_body.rowCollection,
@@ -462,7 +467,8 @@ export var Calendar = {
             table: table,
             tableHead: table_head,
             tableBody: table_body,
-            onPickHandlers: []
+            onPickHandlers: [],
+            before_td_append: before_td_append
         };
 
         CalendarController.attachPrevClickEvent(id);
@@ -489,7 +495,7 @@ export var Calendar = {
         }
         cal.displayedYear = year;
         cal.displayedMonthIndex = month_index;
-        var table_body = CalendarMarkup.createTableBody(year, month_index, current_day);
+        var table_body = CalendarMarkup.createTableBody(year, month_index, current_day, this._calendars[calendar_id].before_td_append);
         CalendarDecorator.decorateTableBody(
             table_body.tbody,
             table_body.rowCollection,
